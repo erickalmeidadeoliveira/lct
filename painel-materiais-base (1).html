@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materiais parados na base</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #0F141B;
+    color: #E7EBEF;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid #26313C;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .sub {
+    color: #7C8896;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .last-update {
+    font-size: 12px;
+    color: #7C8896;
+    text-align: right;
+  }
+
+  .last-update strong {
+    color: #C9D2DA;
+    font-weight: 500;
+  }
+
+  .panel {
+    background: #151C24;
+    border: 1px solid #26313C;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  .panel h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #7C8896;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 0.85fr 1fr 1.3fr auto;
+    gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .form-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  input, select, textarea {
+    background: #0F141B;
+    border: 1px solid #2A3642;
+    color: #E7EBEF;
+    border-radius: 6px;
+    padding: 9px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #4C8DE0;
+  }
+
+  input::placeholder { color: #55606B; }
+
+  #doc-input { font-family: 'IBM Plex Mono', monospace; }
+
+  button {
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .btn-add {
+    background: #4C8DE0;
+    color: #0B1521;
+    border: none;
+    padding: 9px 16px;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { background: #6BA1E5; }
+
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid #2A3642;
+    color: #C9D2DA;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-secondary:hover { border-color: #4C8DE0; color: #E7EBEF; }
+
+  .btn-danger-outline {
+    background: transparent;
+    border: 1px solid #2A3642;
+    color: #E0A238;
+    padding: 8px 14px;
+  }
+
+  .btn-danger-outline:hover { border-color: #E0A238; }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 700px) {
+    .board { grid-template-columns: 1fr; }
+  }
+
+  .col-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #26313C;
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-parado { background: #E0A238; }
+  .dot-andamento { background: #4C8DE0; }
+  .dot-liberado { background: #4CAF7D; }
+
+  .count {
+    margin-left: auto;
+    color: #7C8896;
+    font-weight: 400;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .card {
+    background: #151C24;
+    border: 1px solid #26313C;
+    border-left: 3px solid #26313C;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .card.parado { border-left-color: #E0A238; }
+  .card.andamento { border-left-color: #4C8DE0; }
+  .card.liberado { border-left-color: #4CAF7D; }
+
+  .card-doc {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+  }
+
+  .card-city {
+    font-size: 12px;
+    color: #9AA6B2;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+
+  .card-obs {
+    font-size: 12px;
+    color: #7C8896;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .card-meta {
+    font-size: 11px;
+    color: #55606B;
+    margin-top: 8px;
+  }
+
+  .card-controls {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .card-controls select {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .icon-btn {
+    background: transparent;
+    border: 1px solid #2A3642;
+    color: #7C8896;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .icon-btn:hover { border-color: #E0A238; color: #E0A238; }
+
+  .empty {
+    color: #55606B;
+    font-size: 12px;
+    padding: 10px 0;
+    text-align: center;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1D2833;
+    border: 1px solid #2A3642;
+    color: #E7EBEF;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .loading {
+    text-align: center;
+    color: #7C8896;
+    padding: 40px 0;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Materiais parados na base</h1>
+      <div class="sub">Acompanhamento semanal — atualizado por Erick</div>
+    </div>
+    <div class="last-update" id="last-update">Carregando...</div>
+  </header>
+
+  <div class="panel">
+    <h2>Registrar item</h2>
+    <div class="form-row">
+      <input id="doc-input" placeholder="Nº do documento" />
+      <input id="city-input" placeholder="Cidade de entrega" />
+      <select id="status-input">
+        <option value="parado">Parado</option>
+        <option value="andamento">Em andamento</option>
+        <option value="liberado">Liberado</option>
+      </select>
+      <input id="retorno-input" type="date" title="Data de retorno do material" />
+      <input id="obs-input" placeholder="Observação (opcional)" />
+      <button class="btn-add" id="add-btn">Adicionar</button>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn-secondary" id="whatsapp-btn"><i>↗</i> Enviar resumo no WhatsApp</button>
+    <button class="btn-secondary" id="copy-btn">Copiar resumo</button>
+    <button class="btn-danger-outline" id="clear-btn">Limpar tudo</button>
+  </div>
+
+  <div id="board-container">
+    <div class="loading">Carregando painel...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'materiais-base-itens';
+let items = [];
+
+const statusLabels = { parado: 'Parado', andamento: 'Em andamento', liberado: 'Liberado' };
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' +
+         d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDateOnly(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+async function loadItems() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    items = result ? JSON.parse(result.value) : [];
+  } catch (err) {
+    items = [];
+  }
+  render();
+}
+
+async function saveItems() {
+  try {
+    const result = await window.storage.set(STORAGE_KEY, JSON.stringify(items), true);
+    if (!result) showToast('Não foi possível salvar. Tente novamente.');
+  } catch (err) {
+    showToast('Erro ao salvar. Verifique a conexão.');
+  }
+}
+
+function updateLastUpdate() {
+  const el = document.getElementById('last-update');
+  if (items.length === 0) {
+    el.innerHTML = 'Nenhum item registrado';
+    return;
+  }
+  const latest = items.reduce((a, b) => new Date(a.atualizadoEm) > new Date(b.atualizadoEm) ? a : b);
+  el.innerHTML = 'Última atualização<br><strong>' + formatDate(latest.atualizadoEm) + '</strong>';
+}
+
+function render() {
+  updateLastUpdate();
+  const container = document.getElementById('board-container');
+  const cols = [
+    { key: 'parado', label: 'Parado', dot: 'dot-parado' },
+    { key: 'andamento', label: 'Em andamento', dot: 'dot-andamento' },
+    { key: 'liberado', label: 'Liberado', dot: 'dot-liberado' }
+  ];
+
+  const board = document.createElement('div');
+  board.className = 'board';
+
+  cols.forEach(col => {
+    const colItems = items.filter(i => i.status === col.key)
+      .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+    const colEl = document.createElement('div');
+    colEl.innerHTML = '<div class="col-head"><span class="dot ' + col.dot + '"></span>' +
+      col.label + '<span class="count">' + colItems.length + '</span></div>';
+
+    if (colItems.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = 'Nenhum item';
+      colEl.appendChild(empty);
+    }
+
+    colItems.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card ' + col.key;
+      card.innerHTML =
+        '<div class="card-doc">' + escapeHtml(item.doc) + '</div>' +
+        '<div class="card-city">' + escapeHtml(item.cidade) + '</div>' +
+        (item.dataRetorno ? '<div class="card-obs">Retorno: ' + formatDateOnly(item.dataRetorno) + '</div>' : '') +
+        (item.obs ? '<div class="card-obs">' + escapeHtml(item.obs) + '</div>' : '') +
+        '<div class="card-meta">Registrado em ' + formatDate(item.criadoEm) + '</div>' +
+        '<div class="card-controls">' +
+          '<select data-id="' + item.id + '" class="status-select">' +
+            Object.keys(statusLabels).map(k =>
+              '<option value="' + k + '"' + (k === item.status ? ' selected' : '') + '>' + statusLabels[k] + '</option>'
+            ).join('') +
+          '</select>' +
+          '<button class="icon-btn delete-btn" data-id="' + item.id + '" aria-label="Excluir">×</button>' +
+        '</div>';
+      colEl.appendChild(card);
+    });
+
+    board.appendChild(colEl);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(board);
+
+  container.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async (e) => {
+      const id = e.target.getAttribute('data-id');
+      const item = items.find(i => i.id === id);
+      if (item) {
+        item.status = e.target.value;
+        item.atualizadoEm = new Date().toISOString();
+        await saveItems();
+        render();
+        showToast('Status atualizado');
+      }
+    });
+  });
+
+  container.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.target.getAttribute('data-id');
+      if (confirm('Remover este item do painel?')) {
+        items = items.filter(i => i.id !== id);
+        await saveItems();
+        render();
+        showToast('Item removido');
+      }
+    });
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('add-btn').addEventListener('click', async () => {
+  const doc = document.getElementById('doc-input').value.trim();
+  const cidade = document.getElementById('city-input').value.trim();
+  const status = document.getElementById('status-input').value;
+  const dataRetorno = document.getElementById('retorno-input').value;
+  const obs = document.getElementById('obs-input').value.trim();
+
+  if (!doc || !cidade) {
+    showToast('Preencha o número do documento e a cidade');
+    return;
+  }
+
+  const now = new Date().toISOString();
+  items.push({
+    id: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    doc, cidade, status, dataRetorno, obs,
+    criadoEm: now,
+    atualizadoEm: now
+  });
+
+  await saveItems();
+  document.getElementById('doc-input').value = '';
+  document.getElementById('city-input').value = '';
+  document.getElementById('retorno-input').value = '';
+  document.getElementById('obs-input').value = '';
+  document.getElementById('status-input').value = 'parado';
+  render();
+  showToast('Item adicionado');
+});
+
+function buildSummaryText() {
+  const parados = items.filter(i => i.status === 'parado');
+  const andamento = items.filter(i => i.status === 'andamento');
+  const today = new Date().toLocaleDateString('pt-BR');
+
+  let text = 'Materiais parados na base — ' + today + '\n\n';
+
+  if (parados.length === 0 && andamento.length === 0) {
+    text += 'Nenhum material pendente no momento.';
+    return text;
+  }
+
+  if (parados.length > 0) {
+    text += 'PARADO (' + parados.length + ')\n';
+    parados.forEach(i => {
+      text += '- ' + i.doc + ' — ' + i.cidade +
+        (i.dataRetorno ? ' | Retorno: ' + formatDateOnly(i.dataRetorno) : '') +
+        (i.obs ? ' (' + i.obs + ')' : '') + '\n';
+    });
+    text += '\n';
+  }
+
+  if (andamento.length > 0) {
+    text += 'EM ANDAMENTO (' + andamento.length + ')\n';
+    andamento.forEach(i => {
+      text += '- ' + i.doc + ' — ' + i.cidade +
+        (i.dataRetorno ? ' | Retorno: ' + formatDateOnly(i.dataRetorno) : '') +
+        (i.obs ? ' (' + i.obs + ')' : '') + '\n';
+    });
+  }
+
+  return text.trim();
+}
+
+document.getElementById('whatsapp-btn').addEventListener('click', () => {
+  const text = buildSummaryText();
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+});
+
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  const text = buildSummaryText();
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Resumo copiado');
+  } catch (err) {
+    showToast('Não foi possível copiar automaticamente');
+  }
+});
+
+document.getElementById('clear-btn').addEventListener('click', async () => {
+  if (confirm('Isso vai apagar todos os itens do painel para todos que acessam o link. Continuar?')) {
+    items = [];
+    await saveItems();
+    render();
+    showToast('Painel limpo');
+  }
+});
+
+loadItems();
+</script>
+
+</body>
+</html>
